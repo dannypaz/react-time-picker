@@ -50,7 +50,24 @@ function getSelectionString() {
     return null;
   }
 
-  return window.getSelection().toString();
+  if (window.getSelection) {
+    try {
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.value) {
+          // firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=85686
+          return activeElement.value.substring(activeElement.selectionStart, activeElement.selectionEnd);
+      }
+      return window.getSelection().toString();
+    } catch (e) {
+      console.log('Error getting selected text')
+      return
+    }
+  } else if (document.selection && document.selection.type != "Control") {
+      // For IE
+      return document.selection.createRange().text;
+  } else {
+    console.log('Cannot figure out how to select text')
+  }
 }
 
 function makeOnKeyPress(maxLength) {
