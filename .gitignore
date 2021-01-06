@@ -5,7 +5,6 @@
 **/.yarn/*
 !**/.yarn/releases
 !**/.yarn/plugins
-dist
 coverage
 node_modules
 npm-debug.log
