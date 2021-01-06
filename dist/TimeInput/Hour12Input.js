@@ -74,7 +74,7 @@ function Hour12Input(_ref) {
 
     return minHourResult;
   }());
-  var value12 = value !== null ? (0, _dates.convert24to12)(value)[0] : null;
+  var value12 = value !== null ? (0, _dates.convert24to12)(value)[0].toString() : null;
   return /*#__PURE__*/_react["default"].createElement(_Input["default"], _extends({
     max: maxHour,
     min: minHour,
@@ -84,12 +84,14 @@ function Hour12Input(_ref) {
   }, otherProps));
 }
 
+var isValue = _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].number]);
+
 Hour12Input.propTypes = {
   amPm: _propTypes["default"].string,
   ariaLabel: _propTypes["default"].string,
   className: _propTypes["default"].string.isRequired,
   disabled: _propTypes["default"].bool,
-  hour: _propTypes["default"].number,
+  hour: isValue,
   itemRef: _propTypes["default"].func,
   maxTime: _propTypes2.isTime,
   minTime: _propTypes2.isTime,
@@ -99,5 +101,5 @@ Hour12Input.propTypes = {
   placeholder: _propTypes["default"].string,
   required: _propTypes["default"].bool,
   showLeadingZeros: _propTypes["default"].bool,
-  value: _propTypes["default"].number
+  value: isValue
 };

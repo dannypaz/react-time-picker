@@ -1,5 +1,7 @@
 "use strict";
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -38,8 +40,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
@@ -92,8 +92,8 @@ function hoursAreDifferent(date1, date2) {
   ;
 }
 
-function isValidInput(element) {
-  return element.tagName === 'INPUT' && element.type === 'number';
+function isInternalInput(element) {
+  return element.tagName === 'INPUT' && element.getAttribute('data-input') === 'true';
 }
 
 function findInput(element, property) {
@@ -101,9 +101,31 @@ function findInput(element, property) {
 
   do {
     nextElement = nextElement[property];
-  } while (nextElement && !isValidInput(nextElement));
+  } while (nextElement && !isInternalInput(nextElement));
 
   return nextElement;
+}
+
+function isInputValid(input) {
+  if (!input.validity.valid) {
+    return false;
+  }
+
+  var value = input.value;
+
+  if (!value) {
+    return false;
+  }
+
+  var rawValue = Number(value);
+  var min = Number(input.getAttribute('min'));
+  var max = Number(input.getAttribute('max'));
+
+  if (rawValue < min || rawValue > max) {
+    return false;
+  }
+
+  return true;
 }
 
 function focus(element) {
@@ -204,7 +226,8 @@ var TimeInput = /*#__PURE__*/function (_PureComponent) {
         return;
       }
 
-      var value = input.value;
+      var maxLength = input.maxLength,
+          value = input.value;
       var max = input.getAttribute('max');
       /**
        * Given 1, the smallest possible number the user could type by adding another digit is 10.
@@ -213,7 +236,7 @@ var TimeInput = /*#__PURE__*/function (_PureComponent) {
        * this field doesn't make sense.
        */
 
-      if (value * 10 > max || value.length >= max.length) {
+      if (value * 10 > max || value.length >= maxLength) {
         var property = 'nextElementSibling';
         var nextInput = findInput(input, property);
         focus(nextInput);
@@ -230,17 +253,8 @@ var TimeInput = /*#__PURE__*/function (_PureComponent) {
           {
             _this.setState(function (prevState) {
               return {
-                hour: value ? (0, _dates.convert12to24)(parseInt(value, 10), prevState.amPm) : null
+                hour: value ? (0, _dates.convert12to24)(Number(value), prevState.amPm).toString() : null
               };
-            }, _this.onChangeExternal);
-
-            break;
-          }
-
-        case 'hour24':
-          {
-            _this.setState({
-              hour: value ? parseInt(value, 10) : null
             }, _this.onChangeExternal);
 
             break;
@@ -248,7 +262,7 @@ var TimeInput = /*#__PURE__*/function (_PureComponent) {
 
         default:
           {
-            _this.setState(_defineProperty({}, name, value ? parseInt(value, 10) : null), _this.onChangeExternal);
+            _this.setState(_defineProperty({}, name, value), _this.onChangeExternal);
           }
       }
     });
@@ -298,12 +312,10 @@ var TimeInput = /*#__PURE__*/function (_PureComponent) {
         return !formElement.value;
       })) {
         onChange(null, false);
-      } else if (formElements.every(function (formElement) {
-        return formElement.value && formElement.validity.valid;
-      })) {
-        var hour = parseInt(values.hour24 || (0, _dates.convert12to24)(values.hour12, values.amPm) || 0, 10);
-        var minute = parseInt(values.minute || 0, 10);
-        var second = parseInt(values.second || 0, 10);
+      } else if (formElements.every(isInputValid)) {
+        var hour = Number(values.hour24 || (0, _dates.convert12to24)(values.hour12, values.amPm) || 0);
+        var minute = Number(values.minute || 0);
+        var second = Number(values.second || 0);
 
         var padStart = function padStart(num) {
           return "0".concat(num).slice(-2);
@@ -645,9 +657,9 @@ var TimeInput = /*#__PURE__*/function (_PureComponent) {
           var _convert24to2 = _slicedToArray(_convert24to, 2);
 
           nextState.amPm = _convert24to2[1];
-          nextState.hour = (0, _dateUtils.getHours)(nextValue);
-          nextState.minute = (0, _dateUtils.getMinutes)(nextValue);
-          nextState.second = (0, _dateUtils.getSeconds)(nextValue);
+          nextState.hour = (0, _dateUtils.getHours)(nextValue).toString();
+          nextState.minute = (0, _dateUtils.getMinutes)(nextValue).toString();
+          nextState.second = (0, _dateUtils.getSeconds)(nextValue).toString();
         } else {
           nextState.amPm = null;
           nextState.hour = null;

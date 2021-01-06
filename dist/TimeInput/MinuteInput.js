@@ -34,7 +34,7 @@ function MinuteInput(_ref) {
       otherProps = _objectWithoutProperties(_ref, ["hour", "maxTime", "minTime", "showLeadingZeros"]);
 
   function isSameHour(date) {
-    return date && hour === (0, _dateUtils.getHours)(date);
+    return date && Number(hour) === (0, _dateUtils.getHours)(date);
   }
 
   var maxMinute = (0, _utils.safeMin)(59, isSameHour(maxTime) && (0, _dateUtils.getMinutes)(maxTime));
@@ -47,11 +47,13 @@ function MinuteInput(_ref) {
   }, otherProps));
 }
 
+var isValue = _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].number]);
+
 MinuteInput.propTypes = {
   ariaLabel: _propTypes["default"].string,
   className: _propTypes["default"].string.isRequired,
   disabled: _propTypes["default"].bool,
-  hour: _propTypes["default"].number,
+  hour: isValue,
   itemRef: _propTypes["default"].func,
   maxTime: _propTypes2.isTime,
   minTime: _propTypes2.isTime,
@@ -61,5 +63,5 @@ MinuteInput.propTypes = {
   placeholder: _propTypes["default"].string,
   required: _propTypes["default"].bool,
   showLeadingZeros: _propTypes["default"].bool,
-  value: _propTypes["default"].number
+  value: isValue
 };

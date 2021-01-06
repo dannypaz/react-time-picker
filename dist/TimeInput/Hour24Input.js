@@ -41,11 +41,13 @@ function Hour24Input(_ref) {
   }, otherProps));
 }
 
+var isValue = _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].number]);
+
 Hour24Input.propTypes = {
   ariaLabel: _propTypes["default"].string,
   className: _propTypes["default"].string.isRequired,
   disabled: _propTypes["default"].bool,
-  hour: _propTypes["default"].number,
+  hour: _propTypes["default"].string,
   itemRef: _propTypes["default"].func,
   maxTime: _propTypes2.isTime,
   minTime: _propTypes2.isTime,
@@ -55,5 +57,5 @@ Hour24Input.propTypes = {
   placeholder: _propTypes["default"].string,
   required: _propTypes["default"].bool,
   showLeadingZeros: _propTypes["default"].bool,
-  value: _propTypes["default"].number
+  value: isValue
 };

@@ -15,6 +15,8 @@ var _mergeClassNames = _interopRequireDefault(require("merge-class-names"));
 
 var _updateInputWidth = _interopRequireWildcard(require("update-input-width"));
 
+var _predictInputValue = _interopRequireDefault(require("@wojtekmaj/predict-input-value"));
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -60,43 +62,48 @@ function updateInputWidthOnFontLoad(element) {
   document.fonts.addEventListener('loadingdone', onLoadingDone);
 }
 
-function getSelectionString() {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  if (window.getSelection) {
-    console.log('we are here');
-
-    try {
-      var activeElement = document.activeElement;
-
-      if (activeElement && activeElement.value) {
-        console.log('we are active elemented'); // firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=85686
-
-        return activeElement.value.substring(activeElement.selectionStart, activeElement.selectionEnd);
-      }
-
-      console.log('regular selection');
-      return window.getSelection().toString();
-    } catch (e) {
-      console.log('Error getting selected text');
-      return;
-    }
-  }
-
-  console.log('Cannot figure out how to select text');
+function addLeadingZero(value, max) {
+  "0".concat(value).slice(-"".concat(max).length);
 }
 
-function makeOnKeyPress(maxLength) {
-  return function onKeyPress(event) {
-    var key = event.key,
-        input = event.target;
-    var value = input.value;
-    var isNumberKey = !isNaN(parseInt(key, 10));
-    var selection = getSelectionString();
+function makeOnKeyDown(_ref) {
+  var max = _ref.max,
+      min = _ref.min,
+      onChange = _ref.onChange,
+      showLeadingZeros = _ref.showLeadingZeros;
+  return function onKeyDown(event) {
+    switch (event.key) {
+      case 'ArrowUp':
+      case 'ArrowDown':
+        {
+          event.preventDefault();
+          var input = event.target;
+          var value = input.value;
+          var rawNextValue = Number(value) + (event.key === 'ArrowUp' ? 1 : -1);
 
-    if (isNumberKey && (selection || value.length < maxLength)) {
+          if (rawNextValue < min || rawNextValue > max) {
+            return;
+          }
+
+          var hasLeadingZero = showLeadingZeros && rawNextValue < 10;
+          var nextValue = hasLeadingZero ? addLeadingZero(rawNextValue, max) : rawNextValue;
+          input.value = nextValue;
+          onChange(event);
+          break;
+        }
+
+      default:
+    }
+  };
+}
+
+function makeOnKeyPress(max) {
+  return function onKeyPress(event) {
+    var key = event.key;
+    var isNumberKey = !isNaN(parseInt(key, 10));
+    var nextValue = (0, _predictInputValue["default"])(event);
+
+    if (isNumberKey && nextValue <= max) {
       return;
     }
 
@@ -104,27 +111,35 @@ function makeOnKeyPress(maxLength) {
   };
 }
 
-function Input(_ref) {
-  var ariaLabel = _ref.ariaLabel,
-      autoFocus = _ref.autoFocus,
-      className = _ref.className,
-      disabled = _ref.disabled,
-      itemRef = _ref.itemRef,
-      max = _ref.max,
-      min = _ref.min,
-      name = _ref.name,
-      nameForClass = _ref.nameForClass,
-      onChange = _ref.onChange,
-      onKeyDown = _ref.onKeyDown,
-      _onKeyUp = _ref.onKeyUp,
-      _ref$placeholder = _ref.placeholder,
-      placeholder = _ref$placeholder === void 0 ? '--' : _ref$placeholder,
-      required = _ref.required,
-      showLeadingZeros = _ref.showLeadingZeros,
-      step = _ref.step,
-      value = _ref.value;
-  var hasLeadingZero = showLeadingZeros && value !== null && value < 10;
-  var maxLength = max.toString().length;
+function Input(_ref2) {
+  var ariaLabel = _ref2.ariaLabel,
+      autoFocus = _ref2.autoFocus,
+      className = _ref2.className,
+      disabled = _ref2.disabled,
+      itemRef = _ref2.itemRef,
+      max = _ref2.max,
+      min = _ref2.min,
+      name = _ref2.name,
+      nameForClass = _ref2.nameForClass,
+      onChange = _ref2.onChange,
+      _onKeyDown = _ref2.onKeyDown,
+      _onKeyUp = _ref2.onKeyUp,
+      _ref2$placeholder = _ref2.placeholder,
+      placeholder = _ref2$placeholder === void 0 ? '--' : _ref2$placeholder,
+      required = _ref2.required,
+      showLeadingZeros = _ref2.showLeadingZeros,
+      step = _ref2.step,
+      value = _ref2.value;
+  var hasLeadingZero = showLeadingZeros && value !== null && value !== undefined && value.toString().length < 2;
+  var onKeyDownInternal = makeOnKeyDown({
+    max: max,
+    min: min,
+    onChange: onChange,
+    showLeadingZeros: showLeadingZeros
+  });
+  var onKeyPressInternal = makeOnKeyPress({
+    max: max
+  });
   return [hasLeadingZero && /*#__PURE__*/_react["default"].createElement("span", {
     key: "leadingZero",
     className: "".concat(className, "__leadingZero")
@@ -138,12 +153,19 @@ function Input(_ref) {
     disabled: disabled,
     inputMode: "numeric",
     max: max,
+    maxLength: "".concat(max).length,
     min: min,
     name: name,
     onChange: onChange,
     onFocus: onFocus,
-    onKeyDown: onKeyDown,
-    onKeyPress: makeOnKeyPress(maxLength),
+    onKeyDown: function onKeyDown(event) {
+      onKeyDownInternal(event);
+
+      if (_onKeyDown) {
+        _onKeyDown(event);
+      }
+    },
+    onKeyPress: onKeyPressInternal,
     onKeyUp: function onKeyUp(event) {
       (0, _updateInputWidth["default"])(event.target);
 
@@ -152,22 +174,24 @@ function Input(_ref) {
       }
     },
     placeholder: placeholder,
-    ref: function ref(_ref2) {
-      if (_ref2) {
-        (0, _updateInputWidth["default"])(_ref2);
-        updateInputWidthOnFontLoad(_ref2);
+    ref: function ref(_ref3) {
+      if (_ref3) {
+        (0, _updateInputWidth["default"])(_ref3);
+        updateInputWidthOnFontLoad(_ref3);
       }
 
       if (itemRef) {
-        itemRef(_ref2, name);
+        itemRef(_ref3, name);
       }
     },
     required: required,
     step: step,
-    type: "number",
+    type: "text",
     value: value !== null ? value : ''
   })];
 }
+
+var isValue = _propTypes["default"].oneOfType([_propTypes["default"].string, _propTypes["default"].number]);
 
 Input.propTypes = {
   ariaLabel: _propTypes["default"].string,
@@ -186,5 +210,5 @@ Input.propTypes = {
   required: _propTypes["default"].bool,
   showLeadingZeros: _propTypes["default"].bool,
   step: _propTypes["default"].number,
-  value: _propTypes["default"].number
+  value: isValue
 };
