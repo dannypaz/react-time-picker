@@ -6,10 +6,20 @@ import predictInputValue from '@wojtekmaj/predict-input-value';
 
 /* eslint-disable jsx-a11y/no-autofocus */
 
+const isEdgeLegacy = (
+  typeof window !== 'undefined'
+  && 'navigator' in window
+  && navigator.userAgent.match(/ Edge\/1/)
+);
+
 function onFocus(event) {
   const { target } = event;
 
-  requestAnimationFrame(() => target.select());
+  if (isEdgeLegacy) {
+    requestAnimationFrame(() => target.select());
+  } else {
+    target.select();
+  }
 }
 
 function updateInputWidthOnFontLoad(element) {

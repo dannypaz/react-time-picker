@@ -1,7 +1,7 @@
 {
-  "name": "react-time-picker-test-page",
-  "version": "3.1.1",
-  "description": "A test page for React-Time-Picker.",
+  "name": "react-time-picker-sample-page",
+  "version": "4.0.0",
+  "description": "A sample page for React-Time-Picker.",
   "private": true,
   "scripts": {
     "build": "NODE_ENV=production webpack",
@@ -13,26 +13,20 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@wojtekmaj/date-utils": "^1.0.0",
     "prop-types": "^15.6.2",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
-    "react-time-picker": "portal:../"
+    "react-time-picker": "latest"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
-    "@babel/preset-react": "^7.0.0",
-    "@pmmmwh/react-refresh-webpack-plugin": "^0.4.1",
+    "@babel/core": "^7.12.0",
+    "@babel/preset-env": "^7.12.0",
+    "@babel/preset-react": "^7.12.0",
     "babel-loader": "^8.0.0",
     "css-loader": "^4.3.0",
-    "file-loader": "^6.1.0",
     "html-webpack-plugin": "^4.4.0",
     "less": "^3.12.0",
     "less-loader": "^7.0.0",
-    "mini-css-extract-plugin": "^0.11.0",
-    "react-refresh": "^0.8.3",
     "style-loader": "^1.2.0",
     "webpack": "^5.4.0",
     "webpack-cli": "^4.2.0",

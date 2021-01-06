@@ -28,12 +28,12 @@ React-Time-Picker will play nicely with [React-Date-Picker](https://github.com/w
 
 ### Compatibility
 
-Your project needs to use React 16 or later. If you use an older version of React, please refer to the table below to find a suitable React-Time-Picker version.
+Your project needs to use React 16.3 or later. If you use an older version of React, please refer to the table below to find a suitable React-Time-Picker version.
 
-|React version|Newest available React-Time-Picker|
-|----|----|
-|>16.0|latest|
-|>15.0|2.1.1|
+| React version | Newest compatible React-Time-Picker version |
+|-------|--------|
+| ≥16.3 | latest |
+| ≥16.0 | 3.x    |
 
 #### Legacy browsers
 
@@ -67,7 +67,9 @@ function MyApp() {
 
 ### Custom styling
 
-If you don't want to use default React-Time-Picker styling to build upon it, you can import React-Time-Picker by using `import TimePicker from 'react-time-picker/dist/entry.nostyle';` instead.
+If you don't want to use default React-Time-Picker and React-Clock styles, you can import React-Time-Picker without them by using `import TimePicker from 'react-time-picker/dist/entry.nostyle';` instead.
+
+Styles loaded by the default entry file are `react-time-picker/dist/TimePicker.css` and `react-clock/dist/Clock.css`. You can copy them to your project to build your own upon them.
 
 ## User guide
 
