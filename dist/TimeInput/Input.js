@@ -66,25 +66,26 @@ function getSelectionString() {
   }
 
   if (window.getSelection) {
+    console.log('we are here');
+
     try {
       var activeElement = document.activeElement;
 
       if (activeElement && activeElement.value) {
-        // firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=85686
+        console.log('we are active elemented'); // firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=85686
+
         return activeElement.value.substring(activeElement.selectionStart, activeElement.selectionEnd);
       }
 
+      console.log('regular selection');
       return window.getSelection().toString();
     } catch (e) {
       console.log('Error getting selected text');
       return;
     }
-  } else if (document.selection && document.selection.type != "Control") {
-    // For IE
-    return document.selection.createRange().text;
-  } else {
-    console.log('Cannot figure out how to select text');
   }
+
+  console.log('Cannot figure out how to select text');
 }
 
 function makeOnKeyPress(maxLength) {
